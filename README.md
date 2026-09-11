@@ -1,0 +1,62 @@
+# Checkpoint 4 # - logging e métricas
+
+Criar pedidos e gerar logs e métricas para serem avaliados .
+
+## Provedor Utilizado
+* AWS
+
+## Como rodar localmente
+
+### Pre-requisitos
+* Terrform
+*AWS CLI
+*PowerShell
+### Passo a passo
+1. Clone o repositorio para sua maquina:
+   git clone https://github.com/CASRS/cloud-serverless-checkpoint4.git
+
+2. Entre na pasta do projeto:
+   cd cloud-serverless-checkpoint3
+terraform init
+terraform plan
+terraform apply
+3. Excute testes.
+
+Criar mensagem usando Powershell:
+
+ aws sqs send-message `                                                    
+>>     --queue-url $QUEUE_URL `
+>>     --message-group-id "orders" `
+>>     --message-body file://message.json
+
+
+---
+Teste de Fila de processamento:
+aws logs tail `     
+>>   (C:\terraform output -raw lambda_log_group) `
+>>   --since 5m `              
+>>   --format short 
+
+
+Otimizações técnicas fundamentadas:
+Ajuste na coleta de métricas/logs para abordar:
+Evento (message)	Nível	Quando ocorre
+lambda_invocation_started	INFO	Início da execução da Lambda
+raw_message_body	INFO	Recebe o body bruto da mensagem SQS
+message_received	INFO	JSON foi lido e os dados básicos foram extraídos
+business_processing_started	INFO	Início do processamento de negócio
+duplicate_message	INFO	A idempotency_key já foi processada
+order_processed	INFO	Pedido processado com sucesso
+order_processing_failed	ERROR	O processamento apresentou erro
+idempotency_failure_update_failed	ERROR	Falhou ao atualizar o status no DynamoDB depois de um erro
+lambda_invocation_finished	INFO	Final da execução da Lambda
+
+E criação de alarmes:
+Lambda Errors
+Lambda Throttles
+SQS backlog
+SQS oldest message
+DLQ
+DynamoDB throttling
+
+Criação do Dashboard para melhor visualização dos eventos.
